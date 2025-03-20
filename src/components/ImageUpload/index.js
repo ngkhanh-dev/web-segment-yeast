@@ -51,7 +51,7 @@ function ImageUploader() {
             base64_image: file?.split(",")[1],
             image_id: id,
         };
-        const response = await fetch(`http://45.117.177.126:7080${type}`, {
+        const response = await fetch(`${process.env.LINK}${type}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
