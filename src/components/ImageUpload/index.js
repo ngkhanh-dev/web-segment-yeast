@@ -1,21 +1,22 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useRef } from "react";
 import { Button } from "react-bootstrap";
 import { DataContext } from "../DataProvider";
+import CroppedData from "../CroppedImage";
 import "./reset.css";
 import "./style.css";
 
-function downloadJSON(data, filename = "data.json") {
-    const jsonString = JSON.stringify(data, null, 4);
-    const blob = new Blob([jsonString], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
+// function downloadJSON(data, filename = "data.json") {
+//     const jsonString = JSON.stringify(data, null, 4);
+//     const blob = new Blob([jsonString], { type: "application/json" });
+//     const url = URL.createObjectURL(blob);
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
+//     const a = document.createElement("a");
+//     a.href = url;
+//     a.download = filename;
+//     a.click();
 
-    URL.revokeObjectURL(url);
-}
+//     URL.revokeObjectURL(url);
+// }
 
 function downloadCSV(data, filename = "data.csv") {
     const keys = Object.keys(data.json);
@@ -37,21 +38,32 @@ function downloadCSV(data, filename = "data.csv") {
 }
 
 function ImageUploader() {
-    console.log("123");
+    // console.log("123");
 
+    const inputRef = useRef(null);
     const { image, setImage } = useContext(DataContext);
     const [imageResult, setImageResult] = useState({});
     const [name, setName] = useState("");
+    const [textInput, setTextInput] = useState("");
     const [selectedOption, setSelectedOption] = useState(
         "/upload_image/normal_image/"
     );
+
+    const [coords, setCoords] = useState({});
+
+    const handleTextInput = () => {
+        const inputValue = inputRef.current.value;
+        setTextInput(inputValue);
+        // console.log(inputValue);
+        // console.log("Dữ liệu đã gửi:", inputValue);
+    };
 
     const fetchApi = async (file, id, type) => {
         const requestBody = {
             base64_image: file?.split(",")[1],
             image_id: id,
         };
-        const response = await fetch(`http://45.117.177.126:7080${type}`, {
+        const response = await fetch(`http://45.117.177.126:8000${type}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -62,8 +74,48 @@ function ImageUploader() {
             .catch((error) => {
                 console.error("Error:", error);
             });
-        console.log(response);
+        // console.log(response);
         setImageResult(response);
+    };
+
+    // const resetState = () => {
+    //     setCroppedImage(null);
+    //     // setCoords({ x: 0, y: 0, width: 100, height: 100 });
+    //     if (canvasRef.current) {
+    //         const ctx = canvasRef.current.getContext("2d");
+    //         ctx.clearRect(
+    //             0,
+    //             0,
+    //             canvasRef.current.width,
+    //             canvasRef.current.height
+    //         );
+    //     }
+    // };
+
+    const handleOptionChange = (e) => {
+        setSelectedOption(e.target.value);
+        // resetState();
+    };
+
+    const handleCrop = () => {
+        if (!imageResult) return alert("Vui lòng tải ảnh lên trước!");
+        // console.log(imageResult);
+        if (!imageResult["json"]) return alert("Không có dữ liệu để tìm kiếm.");
+        if (!imageResult["json"]["bounding_boxes"])
+            return alert("Không có bounding_boxes để tìm kiếm.");
+        const foundItems = imageResult["json"]["bounding_boxes"].filter(
+            (item) =>
+                item["cell_id"] ==
+                `${imageResult["json"]["image_id"]}_${textInput}`
+        );
+        console.log("Found Item", foundItems);
+
+        if (foundItems.length === 0) {
+            alert("Không tìm thấy ID trong bounding_boxes");
+            return;
+        } else {
+            setCoords(foundItems);
+        }
     };
 
     const handleImageChange = (event) => {
@@ -80,11 +132,33 @@ function ImageUploader() {
                 setImage(reader.result);
                 setName(file.name.split(".")[0]);
                 console.log("Ảnh đã đọc:", reader.result);
+                // resetState();
             };
 
             reader.readAsDataURL(file);
         }
     };
+
+    // const handleTextInput = (x) => {
+    //     if (!image) return alert("Vui lòng tải ảnh lên trước!");
+    //     if (!imageResult["json"]["bounding_boxes"]) {
+    //         alert("Không có dữ liệu để tìm kiếm.");
+    //         return;
+    //     }
+    //     const found = imageResult["json"]["bounding_boxes"].filter(
+    //         (item) =>
+    //             item["cell_id"] ==
+    //             `${imageResult["json"]["image_id"]}_${textInput}`
+    //     );
+    //     if (found) {
+    //         setTextInput(found);
+    //     }
+    //     alert(
+    //         found
+    //             ? "ID tồn tại trong contours_list"
+    //             : "ID không tồn tại trong contours_list"
+    //     );
+    // };
 
     return (
         <>
@@ -93,7 +167,7 @@ function ImageUploader() {
                     <select
                         className="option-select"
                         value={selectedOption}
-                        onChange={(e) => setSelectedOption(e.target.value)}
+                        onChange={handleOptionChange}
                     >
                         <option value="/upload_image/normal_image/">
                             Buồng đếm
@@ -126,7 +200,7 @@ function ImageUploader() {
                                     src={image}
                                     alt="Uploaded"
                                     className="image-preview"
-                                />{" "}
+                                />
                             </div>
                         )}
 
@@ -144,14 +218,17 @@ function ImageUploader() {
 
                     <Button
                         variant="primary"
+                        style={{ zIndex: 999 }}
                         className="mt-4 submit-button"
-                        onClick={() => {
+                        onClick={async () => {
                             if (!image) {
                                 alert("Vui lòng chọn ảnh trước khi gửi!");
                                 return;
                             }
                             console.log("Đang gửi ảnh:", image);
-                            fetchApi(image, "20", selectedOption);
+                            alert("Đang gửi ảnh...");
+                            await fetchApi(image, "20", selectedOption);
+                            alert("Gửi ảnh thành công!");
                         }}
                         data={imageResult}
                     >
@@ -175,6 +252,47 @@ function ImageUploader() {
                         Download Data
                     </div>
                 </div>
+                {/* Right side */}
+                {selectedOption === "/upload_image/normal_image/" && (
+                    <>
+                        <div className="text-input-box">
+                            <h2 className="text-xl font-bold text-gray-700 mb-4">
+                                Nhập Dữ Liệu
+                            </h2>
+                            <input
+                                type="text"
+                                value={textInput}
+                                ref={inputRef}
+                                onChange={(e) =>
+                                    handleTextInput(e.target.value)
+                                }
+                                className="text-input"
+                            />
+                            <Button
+                                variant="success"
+                                className="mt-4 submit-button"
+                                onClick={handleCrop}
+                            >
+                                Gửi Dữ Liệu
+                            </Button>
+                        </div>
+                        {textInput && (
+                            <>
+                                <CroppedData
+                                    src={`data:image/jpeg;base64,${imageResult["mask_img"]}`}
+                                    // cropX={coords[0]["x"]}
+                                    // cropY={coords[0]["y"]}
+                                    // cropWidth={coords[0]["width"]}
+                                    // cropHeight={coords[0]["height"]}
+                                    // cropWidth={400}
+                                    // cropHeight={400}
+                                    // x={150}
+                                    // y={100}
+                                />
+                            </>
+                        )}
+                    </>
+                )}
             </div>
         </>
     );
