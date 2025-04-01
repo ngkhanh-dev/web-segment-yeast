@@ -16,7 +16,7 @@
     "react-dom": "^19.0.0",
     "react-konva": "^19.0.3",
     "react-konva-utils": "^1.1.0",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "url": "^0.11.4",
     "web-vitals": "^2.1.4"
   },
