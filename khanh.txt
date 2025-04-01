@@ -1,0 +1,30 @@
+- bảng số lượng ong bắp cày trong mỗi ảnh ( bao nhiêu ảnh có 0, 1, 2, 3 con)
+    => vẽ biểu đồ cho thấy train test cũng tỉ lệ như thế, vẽ biểu đồ tỉ lệ %
+    => để cho thấy 3 tập train, validation, test cùng phân phối
+- Note: Nhìn lại tập dữ liệu, xem lấy từ MẤY NGUỒN VIDEO KHÁC NHAU ( quay 2 khu vực khác hoàn toàn nhau ) nhiều thử nghiệm
+    + ví dụ thử nghiệm: giả sử tập dữ liệu này đến từ 3 vùng tổ khác nhau thì có thể chia làm 3 thí nghiệm:
+    + 2 vùng tổ train, 1 vùng tổ test 
+        ví dụ con ong mới bay đc vài phân, mới training xong lấy đi test thì đúng ( ko khách quan)
+    => Dataset kết quả 99% thì bên duyệt báo sẽ không thích bởi vì 99% thì ai làm bài toán của mình nữa
+- Nhìn hoặc xài kmeans
+- Thêm file csv/txt liệt kê ảnh nào đến từ trang trại nào, có 2 cột:
+    + tên file ảnh
+    + trang trại nào ( trạng trại thì đánh số )
+    + có 3 nguồn chia 3 tập, có 4 nguồn chia 4 tập, có 5 nguồn chia 5 tập
+
+- NOTE: + Phân phối theo các vùng trước rồi mới phân phối ong trong từng vùng xem phân phối có giống nhau không?
+        + Chia tập theo trang trại chứ ko chia tập theo số lượng nữa
+    ??? NẾU PHÂN BỐ KHÁC NHAU
+        + Kết quả giải thích ví dụ như trang trại này có rất ít ong trong 1 ảnh thì kết quả kém, nếu so sánh với trang trại nhiều
+        ong mật trong ảnh để training và ít ong mật để test bởi vì ít ong mật thì nó sẽ tách biệt với nhau
+        => Khi đó mới so sánh được
+        + Training trên trang trại này, nhận dạng trên trang trại kia thì kết quả khác nhau, có trang trại test có độ chính xác 0.9, 
+        có trang trại kia chỉ 0.7, khi đó phải giải thích vì sao
+            _ Màu sắc khác nhau, có kỹ thuật nào đấy xử lý ko
+            _ Số lượng ong khác nhau, 1 cách giải thích
+
+# Lấy danh sách tất cả các tệp ảnh
+image_files = [f for f in os.listdir(data_dir) if f.endswith(".jpg")]
+
+# Số lượng ảnh trong mỗi tập dữ liệu
+total_images = len(image_files)

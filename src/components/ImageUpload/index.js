@@ -18,6 +18,13 @@ import "./style.css";
 //     URL.revokeObjectURL(url);
 // }
 
+function downloadImage(base64Data, filename) {
+    const link = document.createElement("a");
+    link.href = `data:image/png;base64,${base64Data}`;
+    link.download = filename;
+    link.click();
+}
+
 function downloadCSV(data, filename = "data.csv") {
     const keys = Object.keys(data.json);
     const rows = [keys.join(",")];
@@ -65,6 +72,7 @@ function ImageUploader() {
         };
         const response = await fetch(`http://45.117.177.126:8000${type}`, {
             method: "POST",
+            cache: "no-store",
             headers: {
                 "Content-Type": "application/json",
             },
@@ -159,6 +167,7 @@ function ImageUploader() {
     //             : "ID không tồn tại trong contours_list"
     //     );
     // };
+    console.log("Coords", coords);
 
     return (
         <>
@@ -204,12 +213,25 @@ function ImageUploader() {
                             </div>
                         )}
 
-                        {imageResult?.json && (
+                        {imageResult?.mask_img && (
                             <div className="image-box">
-                                <span className="image-label">Ảnh kết quả</span>
+                                <span className="image-label">Ảnh Mask</span>
                                 <img
                                     src={`data:image/jpeg;base64,${imageResult["mask_img"]}`}
                                     alt="Processed"
+                                    className="image-preview"
+                                />
+                            </div>
+                        )}
+
+                        {imageResult?.bb_img && (
+                            <div className="image-box">
+                                <span className="image-label">
+                                    Ảnh Bounding Box
+                                </span>
+                                <img
+                                    src={`data:image/jpeg;base64,${imageResult["bb_img"]}`}
+                                    alt="Bounding Box"
                                     className="image-preview"
                                 />
                             </div>
@@ -251,6 +273,33 @@ function ImageUploader() {
                     >
                         Download Data
                     </div>
+                    {imageResult?.mask_img && (
+                        <Button
+                            className="mt-4 file-button"
+                            onClick={() =>
+                                downloadImage(
+                                    imageResult["mask_img"],
+                                    `${imageResult["json"]["image_id"]}.png`
+                                )
+                            }
+                        >
+                            Download Mask Image
+                        </Button>
+                    )}
+
+                    {imageResult?.bb_img && (
+                        <Button
+                            className="mt-4 file-button"
+                            onClick={() =>
+                                downloadImage(
+                                    imageResult["bb_img"],
+                                    `${imageResult["json"]["image_id"]}_bb.png`
+                                )
+                            }
+                        >
+                            Download Bounding Box Image
+                        </Button>
+                    )}
                 </div>
                 {/* Right side */}
                 {selectedOption === "/upload_image/normal_image/" && (
@@ -279,15 +328,16 @@ function ImageUploader() {
                         {textInput && (
                             <>
                                 <CroppedData
-                                    src={`data:image/jpeg;base64,${imageResult["mask_img"]}`}
-                                    // cropX={coords[0]["x"]}
-                                    // cropY={coords[0]["y"]}
-                                    // cropWidth={coords[0]["width"]}
-                                    // cropHeight={coords[0]["height"]}
-                                    // cropWidth={400}
-                                    // cropHeight={400}
-                                    // x={150}
-                                    // y={100}
+                                    style={{
+                                        background: "black",
+                                    }}
+                                    src={`data:image/jpeg;base64,${imageResult["bb_img"]}`}
+                                    cropX={coords[0]["x"] + 5}
+                                    cropY={coords[0]["y"] + 5}
+                                    cropWidth={coords[0]["width"] + 35}
+                                    cropHeight={coords[0]["height"] + 35}
+                                    x={150}
+                                    y={100}
                                 />
                             </>
                         )}
