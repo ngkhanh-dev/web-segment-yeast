@@ -328,9 +328,6 @@ function ImageUploader() {
                         {textInput && (
                             <>
                                 <CroppedData
-                                    style={{
-                                        background: "black",
-                                    }}
                                     src={`data:image/jpeg;base64,${imageResult["bb_img"]}`}
                                     cropX={coords[0]["x"] + 5}
                                     cropY={coords[0]["y"] + 5}
