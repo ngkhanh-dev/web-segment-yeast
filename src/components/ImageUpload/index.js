@@ -70,14 +70,17 @@ function ImageUploader() {
             base64_image: file?.split(",")[1],
             image_id: id,
         };
-        const response = await fetch(`http://45.117.177.126:8000${type}`, {
-            method: "POST",
-            cache: "no-store",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(requestBody),
-        })
+        const response = await fetch(
+            `https://nguyendangkhanh225343.id.vn${type}`,
+            {
+                method: "POST",
+                cache: "no-store",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(requestBody),
+            }
+        )
             .then((res) => res.json())
             .catch((error) => {
                 console.error("Error:", error);
