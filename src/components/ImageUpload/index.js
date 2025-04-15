@@ -182,10 +182,10 @@ function ImageUploader() {
                             Buồng đếm
                         </option>
                         <option value="/upload_image/ethanol_image/">
-                            Etilen sống chết
+                            Etanol image 16 ô
                         </option>
-                        <option value="blur">Bất thường/ bình thường</option>
-                        <option value="edge_detection">16 ô</option>
+                        {/* <option value="blur">Bất thường/ bình thường</option>
+                        <option value="edge_detection">16 ô</option> */}
                     </select>
                     <h2 className="text-xl font-bold text-gray-700 mb-4">
                         Upload Ảnh
