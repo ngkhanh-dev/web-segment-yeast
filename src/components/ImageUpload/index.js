@@ -70,7 +70,7 @@ function ImageUploader() {
             base64_image: file?.split(",")[1],
             image_id: id,
         };
-        const response = await fetch(`https://45.117.177.126${type}`, {
+        const response = await fetch(`http://45.117.177.126${type}`, {
             method: "POST",
             cache: "no-store",
             headers: {
